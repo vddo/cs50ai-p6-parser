@@ -1,6 +1,9 @@
 import nltk
 import sys
 
+nltk.download('punkt')
+from nltk.tokenize import word_tokenize, regexp_tokenize
+
 TERMINALS = """
 Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
 Adv -> "down" | "here" | "never"
@@ -35,24 +38,25 @@ def main():
 
     # Convert input into list of words
     s = preprocess(s)
+    print(s)
 
-    # Attempt to parse sentence
-    try:
-        trees = list(parser.parse(s))
-    except ValueError as e:
-        print(e)
-        return
-    if not trees:
-        print("Could not parse sentence.")
-        return
+    # # Attempt to parse sentence
+    # try:
+    #     trees = list(parser.parse(s))
+    # except ValueError as e:
+    #     print(e)
+    #     return
+    # if not trees:
+    #     print("Could not parse sentence.")
+    #     return
 
-    # Print each tree with noun phrase chunks
-    for tree in trees:
-        tree.pretty_print()
+    # # Print each tree with noun phrase chunks
+    # for tree in trees:ﬁ
+    #     tree.pretty_print()
 
-        print("Noun Phrase Chunks")
-        for np in np_chunk(tree):
-            print(" ".join(np.flatten()))
+    #     print("Noun Phrase Chunks")
+    #     for np in np_chunk(tree):
+    #         print(" ".join(np.flatten()))
 
 
 def preprocess(sentence):
@@ -62,7 +66,16 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    raise NotImplementedError
+    # Remove common non alphabetic characters from sentence.
+    reg = regexp_tokenize(sentence, r'[,\.\?!"1234567890]\s*', gaps=True)
+    
+    # Tokenizing all words into one list.
+    word_list = []
+    for r in reg:
+        word_list += word_tokenize(r)
+    
+    # Convert to lowercase and return
+    return(list(map(lambda x: x.lower(), word_list)))
 
 
 def np_chunk(tree):
