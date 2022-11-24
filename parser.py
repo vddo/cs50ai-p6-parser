@@ -20,7 +20,7 @@ V -> "smiled" | "tell" | "were"
 NONTERMINALS = """
 S -> NP VP
 
-NP -> N | Det NP | Conj NP | N NP | AP NP | P NP | NP Adv
+NP -> N | Det N | Det AP N | Conj NP | N NP | AP NP | P NP | NP Adv
 VP -> V | V NP | V VP | NP V | VP CP | Adv VP | VP Adv
 AP -> Adj AP | Adj
 CP -> Conj | Conj VP | Adv CP | Conj NP VP
@@ -54,8 +54,6 @@ def main():
         print("Could not parse sentence.")
         return
 
-    # Empty list to store trees
-    list_of_trees = [trees]
     
     # Print each tree with noun phrase chunks
     for tree in trees:
@@ -65,9 +63,8 @@ def main():
         print("Noun Phrase Chunks")
         for np in np_chunk(tree):
             print(" ".join(np.flatten()))
-    
-    return list_of_trees
 
+        return trees
 
 def preprocess(sentence):
     """
@@ -97,8 +94,8 @@ def np_chunk(tree):
     """
     list_chunk = []
     
-    for s in tree.subtrees(lambda t: t.height() == 2):
-        if s.label() == "N":
+    for s in tree.subtrees(lambda t: t.height() == 3):
+        if s.label() == "NP":
             list_chunk.append(s)
     
     return list_chunk
