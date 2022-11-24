@@ -1,0 +1,9 @@
+(S
+  (NP (N holmes))
+  (VP
+    (VP
+      (V sat)
+      (NP
+        (P in)
+        (NP (Det the) (NP (AP (Adj red)) (NP (N armchair))))))
+    (CP (Conj and) (VP (NP (N he)) (V chuckled)))))

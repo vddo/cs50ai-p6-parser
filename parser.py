@@ -1,7 +1,7 @@
 import nltk
 import sys
 
-nltk.download('punkt')
+# nltk.download('punkt')
 from nltk.tokenize import word_tokenize, regexp_tokenize
 
 TERMINALS = """
@@ -18,7 +18,12 @@ V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> N V
+S -> NP VP
+
+NP -> N | Det NP | Conj NP | N NP | AP NP | P NP | NP Adv
+VP -> V | V NP | V VP | NP V | VP CP | Adv VP | VP Adv
+AP -> Adj AP | Adj
+CP -> Conj | Conj VP | Adv CP | Conj NP VP
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -38,25 +43,30 @@ def main():
 
     # Convert input into list of words
     s = preprocess(s)
-    print(s)
 
-    # # Attempt to parse sentence
-    # try:
-    #     trees = list(parser.parse(s))
-    # except ValueError as e:
-    #     print(e)
-    #     return
-    # if not trees:
-    #     print("Could not parse sentence.")
-    #     return
+    # Attempt to parse sentence
+    try:
+        trees = list(parser.parse(s))
+    except ValueError as e:
+        print(e)
+        return
+    if not trees:
+        print("Could not parse sentence.")
+        return
 
-    # # Print each tree with noun phrase chunks
-    # for tree in trees:ﬁ
-    #     tree.pretty_print()
+    # Empty list to store trees
+    list_of_trees = [trees]
+    
+    # Print each tree with noun phrase chunks
+    for tree in trees:
+        # list_of_trees.append(tree)
+        tree.pretty_print()
 
-    #     print("Noun Phrase Chunks")
-    #     for np in np_chunk(tree):
-    #         print(" ".join(np.flatten()))
+        print("Noun Phrase Chunks")
+        for np in np_chunk(tree):
+            print(" ".join(np.flatten()))
+    
+    return list_of_trees
 
 
 def preprocess(sentence):
@@ -85,7 +95,13 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    list_chunk = []
+    
+    for s in tree.subtrees(lambda t: t.height() == 2):
+        if s.label() == "N":
+            list_chunk.append(s)
+    
+    return list_chunk
 
 
 if __name__ == "__main__":
