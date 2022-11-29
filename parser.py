@@ -19,11 +19,18 @@ V -> "smiled" | "tell" | "were"
 
 NONTERMINALS = """
 S -> NP VP
+S -> NP VP PP
+S -> NP VP CP
+S -> NP VP PP CP
 
-NP -> N | Det N | Det AP N | Conj NP | N NP | AP NP | P NP | NP Adv
-VP -> V | V NP | V VP | NP V | VP CP | Adv VP | VP Adv
+NP -> N | Det N | Det N N | Det AP N  
+NP -> Det AP N | N NP | AP NP | NP Adv | P NP
+# NP -> Det N PP | Det N N PP | Conj NP 
+VP -> V | V NP | V VP | NP V | Adv VP | VP Adv
+# VP -> VP CP |
 AP -> Adj AP | Adj
-CP -> Conj | Conj VP | Adv CP | Conj NP VP
+CP -> Conj | Conj VP | Adv CP | Conj S
+PP -> P | P NP | PP NP
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -94,9 +101,25 @@ def np_chunk(tree):
     """
     list_chunk = []
     
-    for s in tree.subtrees(lambda t: t.height() == 3):
-        if s.label() == "NP":
-            list_chunk.append(s)
+    # Loop over subtrees and save all subtrees with label "NP" regardless 
+    # of their level.
+    for n in tree.subtrees():
+    # print(n)
+        if n.label() == "NP":
+            list_chunk.append(n)
+    
+    # Loop over subtrees with label "NP" and add those with own
+    # NP-subtree to list_remove
+    list_remove = []        
+    for i in list_chunk:
+        for j in i:
+            if j.label() == "NP":
+                list_remove.append(i)
+                continue
+            
+    # Remove elements of list_remove from list_chunk.
+    for i in list_remove:
+        list_chunk.remove(i)
     
     return list_chunk
 
